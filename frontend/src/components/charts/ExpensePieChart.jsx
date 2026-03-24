@@ -31,8 +31,8 @@ export function ExpensePieChart({ data, loading }) {
               innerRadius={60}
               outerRadius={80}
               paddingAngle={5}
-              dataKey="amount"
-              nameKey="category"
+              dataKey="value"
+              nameKey="name"
               stroke="none"
             >
               {data?.map((entry, index) => (

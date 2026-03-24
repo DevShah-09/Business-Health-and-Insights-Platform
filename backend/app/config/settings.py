@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
 
     # Database
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:password@localhost:5432/sme_db"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./test.db"
 
     # Security
     SECRET_KEY: str = "change-me-in-production"

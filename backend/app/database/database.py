@@ -1,16 +1,17 @@
 """
-database.py — Async SQLAlchemy engine + session factory
+database.py — Async SQLAlchemy engine + session factory (SQLite version)
 """
+
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 from app.config.settings import settings
 
+# ✅ Make sure settings.DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+
 engine = create_async_engine(
     settings.DATABASE_URL,
     echo=settings.DEBUG,
-    pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20,
+    connect_args={"check_same_thread": False},  # ✅ Required for SQLite
 )
 
 AsyncSessionLocal = async_sessionmaker(
@@ -41,5 +42,5 @@ async def get_db():
 async def init_db():
     """Create all tables on startup."""
     async with engine.begin() as conn:
-        from app.models import user, business, transaction, report  # noqa: F401
+        from app.models import user, business, transaction, report  # noqa
         await conn.run_sync(Base.metadata.create_all)

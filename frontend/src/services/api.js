@@ -5,9 +5,9 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8001',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
   headers: { 'Content-Type': 'application/json' },
-  timeout: 3000,
+  timeout: 15000,
 });
 
 // Request interceptor — attach auth token if present

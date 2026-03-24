@@ -9,7 +9,7 @@ const BUSINESS_ID = '550e8400-e29b-41d4-a716-446655440001';
 
 export default function Simulation() {
   const { results, loading: simulationLoading, runSimulation, error } = useSimulation();
-  const { analytics, loading: analyticsLoading } = useAnalytics();
+  const { data: analytics, loading: analyticsLoading } = useAnalytics();
   
   const [params, setParams] = useState({
     income_change_pct: 0,
@@ -21,7 +21,7 @@ export default function Simulation() {
 
   // Initial simulation on load or when analytics change
   useEffect(() => {
-    if (analytics?.summary) {
+    if (analytics?.kpis) {
       handleSimulate();
     }
   }, [analytics]);
@@ -54,8 +54,13 @@ export default function Simulation() {
     );
   }
 
-  const current = analytics?.summary || {};
-  const projected = results?.projected || {};
+  const current = results?.current || {
+    total_income: analytics?.kpis?.total_revenue || 0,
+    total_expenses: analytics?.kpis?.total_expenses || 0,
+    net_profit: analytics?.kpis?.net_profit || 0,
+    profit_margin: analytics?.profit_margin || 0,
+  };
+  const projected = results?.projected || current;
   const impact = results?.impact || {};
 
   return (

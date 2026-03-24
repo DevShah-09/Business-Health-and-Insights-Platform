@@ -24,7 +24,7 @@ export function ChatBubble({ message }) {
           <div className={`rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm ${
             isUser 
               ? 'bg-surface-muted text-surface-foreground rounded-tr-sm' 
-              : 'bg-gradient-to-br from-[#171f33] to-[#131b2e] border border-surface-border text-surface-foreground rounded-tl-sm shadow-[0_4px_20px_rgba(0,0,0,0.2)]'
+              : 'bg-gradient-to-br from-[#171f33] to-[#131b2e] border border-surface-border text-white rounded-tl-sm shadow-[0_4px_20px_rgba(0,0,0,0.2)]'
           }`}>
             {message.content.split('\n').map((line, i) => (
               <p key={i} className={i > 0 ? 'mt-2' : ''}>

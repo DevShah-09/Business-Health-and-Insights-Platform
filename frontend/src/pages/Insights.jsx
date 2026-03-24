@@ -9,6 +9,12 @@ import { TopBar } from '../components/dashboard/TopBar';
 export default function Insights() {
   const { insights, loading, refetch } = useInsights();
 
+  /** Convert snake_case to Title Case (e.g. professional_services → Professional Services) */
+  const formatText = (text) =>
+    typeof text === 'string'
+      ? text.replace(/[_-]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+      : text;
+
   return (
     <div className="flex flex-col h-full bg-[var(--color-surface)] overflow-y-auto">
       <TopBar />
@@ -62,7 +68,7 @@ export default function Insights() {
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-2 text-xl">
                       <span>{insight.icon}</span>
-                      <h4 className="text-base font-bold text-surface-foreground">{insight.title}</h4>
+                      <h4 className="text-base font-bold text-surface-foreground">{formatText(insight.title)}</h4>
                     </div>
                     <div className="flex gap-2">
                       <Badge variant="default">{insight.category}</Badge>
@@ -71,7 +77,7 @@ export default function Insights() {
                   </div>
                   
                   <p className="text-sm text-surface-muted-foreground leading-relaxed mb-4 mt-2 max-w-2xl">
-                    {insight.description}
+                    {formatText(insight.description)}
                   </p>
                   
                   <button className="text-sm font-semibold text-brand hover:text-brand transition flex items-center gap-1 group-hover:translate-x-1">
