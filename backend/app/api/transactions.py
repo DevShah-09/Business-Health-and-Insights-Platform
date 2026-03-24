@@ -46,7 +46,7 @@ async def create_transaction(
         source="manual"
     )
     db.add(tx)
-    await db.flush()
+    await db.commit()
     await db.refresh(tx)
     return tx
 

@@ -28,7 +28,13 @@ const UPLOAD_TYPES = [
 
 export default function Transactions() {
   const { transactions, loading, submitting, addTransaction, editTransaction, uploadFile, categorizeAll, removeTransaction } = useTransactions();
-  const [formData, setFormData] = useState({ type: 'income', category: 'salary', description: '', amount: '' });
+  const [formData, setFormData] = useState({ 
+    type: 'income', 
+    category: 'salary', 
+    description: '', 
+    amount: '', 
+    date: new Date().toISOString().split('T')[0] 
+  });
   const [uploadType, setUploadType] = useState('csv');
   const [uploading, setUploading] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -65,9 +71,9 @@ export default function Transactions() {
       await addTransaction({
         ...formData,
         amount: Number(formData.amount),
-        transaction_date: new Date().toISOString().split('T')[0],
+        transaction_date: formData.date || new Date().toISOString().split('T')[0],
       });
-      setFormData((f) => ({ ...f, description: '', amount: '' }));
+      setFormData((f) => ({ ...f, description: '', amount: '', date: new Date().toISOString().split('T')[0] }));
     }
   };
 
@@ -120,11 +126,17 @@ export default function Transactions() {
                 onChange={(e) => setFormData((f) => ({ ...f, description: e.target.value }))}
               />
               <Input
-                label="Amount ($)"
+                label="Amount (₹)"
                 type="number"
                 placeholder="0.00"
                 value={formData.amount}
                 onChange={(e) => setFormData((f) => ({ ...f, amount: e.target.value }))}
+              />
+              <Input
+                label="Date"
+                type="date"
+                value={formData.date}
+                onChange={(e) => setFormData((f) => ({ ...f, date: e.target.value }))}
               />
               <div className="flex gap-2">
                 <Button type="submit" className="flex-1 justify-center" disabled={submitting}>
@@ -254,7 +266,7 @@ export default function Transactions() {
                           </span>
                         </td>
                         <td className={`px-5 py-3 text-right font-semibold ${tx.type === 'income' ? 'text-green-400' : 'text-surface-foreground'}`}>
-                          {tx.type === 'income' ? '+' : '-'}${(tx.amount || 0).toLocaleString()}
+                          {tx.type === 'income' ? '+' : '-'}₹{(tx.amount || 0).toLocaleString()}
                         </td>
                         <td className="px-5 py-3 text-right whitespace-nowrap">
                           <button

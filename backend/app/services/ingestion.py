@@ -96,10 +96,10 @@ async def extract_invoice_data(pdf_text: str) -> dict[str, Any]:
         "description": None,
     }
     
-    # Amount patterns: $1,234.56 or 1234.56
+    # Amount patterns: ₹1,23,456.78, Rs. 1,00,000, $1,234.56 or 1234.56
     amount_patterns = [
-        r'(?:Total|Amount|Sum|Due)[\s:]*(?:\$)?(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)',
-        r'(\d+(?:\.\d{2})?)\s*(?:INR|USD|GBP)',
+        r'(?:Total|Amount|Sum|Due|Net Balance)[\s:]*(?:\$|₹|Rs\.?|INR)?\s*([\d,]+(?:\.\d{1,2})?)',
+        r'([\d,]+(?:\.\d{1,2})?)\s*(?:INR|Rs|₹|USD|GBP)',
     ]
     for pattern in amount_patterns:
         match = re.search(pattern, pdf_text, re.IGNORECASE)

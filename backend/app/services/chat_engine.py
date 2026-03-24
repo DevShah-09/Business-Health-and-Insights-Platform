@@ -23,19 +23,20 @@ def _build_financial_context(business_name: str, summary: dict) -> str:
     top_expense_categories = summary.get("top_expense_categories", {})
     top_income_categories = summary.get("top_income_categories", {})
     
-    expenses_str = ", ".join([f"{cat}: ${amt:,.0f}" for cat, amt in list(top_expense_categories.items())[:3]])
-    income_str = ", ".join([f"{cat}: ${amt:,.0f}" for cat, amt in list(top_income_categories.items())[:3]])
+    expenses_str = ", ".join([f"{cat}: ₹{amt:,.0f}" for cat, amt in list(top_expense_categories.items())[:3]])
+    income_str = ", ".join([f"{cat}: ₹{amt:,.0f}" for cat, amt in list(top_income_categories.items())[:3]])
     
     context = f"""
 You are a financial advisor analyzing {business_name}'s business.
+All financial amounts are in Indian Rupees (₹). Please use the ₹ symbol in your responses.
 
 **Financial Summary:**
-- Total Revenue: ${total_income:,.2f}
-- Total Expenses: ${total_expenses:,.2f}
-- Net Profit: ${net_profit:,.2f}
+- Total Revenue: ₹{total_income:,.2f}
+- Total Expenses: ₹{total_expenses:,.2f}
+- Net Profit: ₹{net_profit:,.2f}
 - Profit Margin: {profit_margin:.1f}%
-- Monthly Avg Income: ${avg_monthly_income:,.2f}
-- Monthly Avg Expenses: ${avg_monthly_expenses:,.2f}
+- Monthly Avg Income: ₹{avg_monthly_income:,.2f}
+- Monthly Avg Expenses: ₹{avg_monthly_expenses:,.2f}
 
 **Top Expense Categories:** {expenses_str if expenses_str else "None"}
 **Top Income Categories:** {income_str if income_str else "None"}
@@ -112,28 +113,28 @@ def _get_fallback_response(user_message: str, business_name: str, summary: dict)
     
     if any(word in msg_lower for word in ["profit", "profitable", "earning"]):
         if profit_margin > 0:
-            return f"{business_name} is profitable with a {profit_margin:.1f}% profit margin (${net_profit:,.2f} net profit). This is a healthy position if margins are above 20%. Consider reinvesting in growth initiatives."
+            return f"{business_name} is profitable with a {profit_margin:.1f}% profit margin (₹{net_profit:,.2f} net profit). This is a healthy position if margins are above 20%. Consider reinvesting in growth initiatives."
         else:
             return f"{business_name} is currently operating at a loss. Focus on reducing expenses or increasing revenue to reach profitability."
     
     elif any(word in msg_lower for word in ["lose", "losing", "money"]):
         if total_expenses > total_income:
-            return f"You're losing ${abs(net_profit):,.2f} overall. Your expenses (${total_expenses:,.2f}) exceed income (${total_income:,.2f}). Immediate action needed: cut non-essential expenses or boost revenue."
+            return f"You're losing ₹{abs(net_profit):,.2f} overall. Your expenses (₹{total_expenses:,.2f}) exceed income (₹{total_income:,.2f}). Immediate action needed: cut non-essential expenses or boost revenue."
         else:
-            return f"Your business is making money overall. Net profit is ${net_profit:,.2f}. If you're concerned about specific areas, review your expense categories."
+            return f"Your business is making money overall. Net profit is ₹{net_profit:,.2f}. If you're concerned about specific areas, review your expense categories."
     
     elif any(word in msg_lower for word in ["expense", "cost", "spending"]):
         high_categories = dict(sorted(summary.get("top_expense_categories", {}).items(), key=lambda x: x[1], reverse=True)[:3])
         if high_categories:
-            cats = ", ".join([f"{cat} (${amt:,.0f})" for cat, amt in high_categories.items()])
+            cats = ", ".join([f"{cat} (₹{amt:,.0f})" for cat, amt in high_categories.items()])
             return f"Your top expenses are: {cats}. Review these categories to identify reduction opportunities."
         return "Monitor your expense categories regularly."
     
     elif any(word in msg_lower for word in ["revenue", "income", "sales"]):
-        return f"Your total revenue is ${total_income:,.2f}. Focus on growing your top income channels and verify they align with your business goals."
+        return f"Your total revenue is ₹{total_income:,.2f}. Focus on growing your top income channels and verify they align with your business goals."
     
     elif any(word in msg_lower for word in ["cash", "flow"]):
-        return f"Your net cash flow is ${net_profit:,.2f}. Maintain positive cash flow by tracking income and expenses closely."
+        return f"Your net cash flow is ₹{net_profit:,.2f}. Maintain positive cash flow by tracking income and expenses closely."
     
     elif any(word in msg_lower for word in ["help", "advice", "recommend"]):
         return f"I can help! Try asking: 'Why is my profit low?', 'Where am I losing money?', 'How are my expenses?', or 'Is my business profitable?'"

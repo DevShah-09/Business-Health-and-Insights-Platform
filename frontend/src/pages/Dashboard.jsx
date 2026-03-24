@@ -1,5 +1,5 @@
 import React from 'react';
-import { DollarSign, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
+import { IndianRupee, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import { useAnalytics, useAlerts } from '../hooks/useAnalytics';
 import { KPICard } from '../components/dashboard/KPICard';
 import { HealthScore } from '../components/dashboard/HealthScore';
@@ -10,8 +10,22 @@ import { AlertList } from '../components/alerts/AlertList';
 
 
 export default function Dashboard() {
-  const { data, loading } = useAnalytics();
+  const { data, loading, error } = useAnalytics();
   const { alerts, loading: alertsLoading } = useAlerts();
+
+  if (error) {
+    return (
+      <div className="flex flex-col h-full bg-[var(--color-surface)] items-center justify-center p-6 text-center">
+        <div className="bg-red-500/10 p-6 rounded-2xl border border-red-500/20 max-w-md">
+          <p className="text-red-400 font-semibold mb-2">Connection Error</p>
+          <p className="text-surface-muted-foreground text-sm mb-4">{error}</p>
+          <button onClick={() => window.location.reload()} className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 transition">
+            Retry Connection
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full bg-[var(--color-surface)] overflow-y-auto">
@@ -22,7 +36,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <KPICard label="Total Revenue" value={data?.kpis?.total_revenue} delta={data?.kpis?.revenue_delta} icon={TrendingUp} color="#22c55e" loading={loading} />
           <KPICard label="Total Expenses" value={data?.kpis?.total_expenses} delta={data?.kpis?.expense_delta} icon={TrendingDown} color="#ef4444" loading={loading} />
-          <KPICard label="Net Profit" value={data?.kpis?.net_profit} delta={data?.kpis?.profit_delta} icon={DollarSign} color="#6366f1" loading={loading} />
+          <KPICard label="Net Profit" value={data?.kpis?.net_profit} delta={data?.kpis?.profit_delta} icon={IndianRupee} color="#6366f1" loading={loading} />
           <KPICard label="Cash Balance" value={data?.kpis?.cash_balance} delta={data?.kpis?.cash_delta} icon={Wallet} color="#3b82f6" loading={loading} />
         </div>
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, TrendingDown, DollarSign, Zap } from 'lucide-react';
+import { TrendingUp, TrendingDown, IndianRupee, Zap } from 'lucide-react';
 import { useFinancials } from '../hooks/useFinancials';
 import { Card } from '../components/ui/Card';
 
@@ -7,6 +7,7 @@ import { PnLChart } from '../components/charts/PnLChart';
 import { CashFlowChart } from '../components/charts/CashFlowChart';
 import { ExpensePieChart } from '../components/charts/ExpensePieChart';
 import { MetricCard } from '../components/dashboard/MetricCard';
+import { TopBar } from '../components/dashboard/TopBar';
 
 export default function Financials() {
   const {
@@ -26,7 +27,11 @@ export default function Financials() {
   if (loading) {
     return (
       <div className="flex flex-col h-full bg-[var(--color-surface)]">
-
+        <TopBar />
+        <div className="px-8 py-6 border-b border-surface-border/30 bg-surface-card/50">
+          <h1 className="text-3xl font-bold text-surface-foreground mb-2">Analytics</h1>
+          <p className="text-sm text-surface-muted-foreground">Detailed financial analysis and KPIs</p>
+        </div>
         <div className="flex-1 p-8 flex items-center justify-center">
           <p className="text-surface-muted-foreground">Loading financial data...</p>
         </div>
@@ -39,40 +44,16 @@ export default function Financials() {
 
   return (
     <div className="flex flex-col h-full bg-[var(--color-surface)] overflow-y-auto">
-
+      <TopBar />
+      
+      {/* Page Header */}
+      <div className="px-8 py-6 border-b border-surface-border/30 bg-surface-card/50">
+        <h1 className="text-3xl font-bold text-surface-foreground mb-2">Analytics</h1>
+        <p className="text-sm text-surface-muted-foreground">Detailed financial analysis and KPIs</p>
+      </div>
 
       <main className="p-6 space-y-6 max-w-[1600px] w-full mx-auto">
         {/* Top KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <MetricCard
-            label="Total Income"
-            value={`$${(summary.total_income || 0).toLocaleString()}`}
-            change="+12%"
-            icon={TrendingUp}
-            trend="up"
-          />
-          <MetricCard
-            label="Total Expenses"
-            value={`$${(summary.total_expenses || 0).toLocaleString()}`}
-            change="+5%"
-            icon={TrendingDown}
-            trend="neutral"
-          />
-          <MetricCard
-            label="Net Profit"
-            value={`$${(summary.net_profit || 0).toLocaleString()}`}
-            change={`${(summary.profit_margin || 0).toFixed(1)}%`}
-            icon={DollarSign}
-            trend={(summary.net_profit || 0) > 0 ? 'up' : 'down'}
-          />
-          <MetricCard
-            label="Profit Margin"
-            value={`${(summary.profit_margin || 0).toFixed(1)}%`}
-            change={`Net margin: ${(metrics.net_margin || 0).toFixed(1)}%`}
-            icon={Zap}
-            trend={(summary.profit_margin || 0) > 25 ? 'up' : 'neutral'}
-          />
-        </div>
 
         {/* Profitability Metrics */}
         <Card>
@@ -134,13 +115,13 @@ export default function Financials() {
               <div className="bg-surface-card p-4 rounded-lg">
                 <p className="text-xs text-surface-muted-foreground mb-1">Total Inflow</p>
                 <p className="text-lg font-bold text-green-400">
-                  ${(cashFlow?.total_inflow || 0).toLocaleString()}
+                  ₹{(cashFlow?.total_inflow || 0).toLocaleString()}
                 </p>
               </div>
               <div className="bg-surface-card p-4 rounded-lg">
                 <p className="text-xs text-surface-muted-foreground mb-1">Total Outflow</p>
                 <p className="text-lg font-bold text-red-400">
-                  ${(cashFlow?.total_outflow || 0).toLocaleString()}
+                  ₹{(cashFlow?.total_outflow || 0).toLocaleString()}
                 </p>
               </div>
               <div className="bg-surface-card p-4 rounded-lg border border-brand/30">
@@ -148,13 +129,13 @@ export default function Financials() {
                 <p className={`text-lg font-bold ${
                   (cashFlow?.net_cash_flow || 0) > 0 ? 'text-green-400' : 'text-red-400'
                 }`}>
-                  ${(cashFlow?.net_cash_flow || 0).toLocaleString()}
+                  ₹{(cashFlow?.net_cash_flow || 0).toLocaleString()}
                 </p>
               </div>
               <div className="bg-surface-card p-4 rounded-lg">
                 <p className="text-xs text-surface-muted-foreground mb-1">Avg Daily Flow</p>
                 <p className="text-lg font-bold text-surface-foreground">
-                  ${(cashFlow?.average_daily_flow || 0).toFixed(2)}
+                  ₹{(cashFlow?.average_daily_flow || 0).toFixed(2)}
                 </p>
               </div>
             </div>
@@ -184,7 +165,7 @@ export default function Financials() {
                 <p className={`text-xl font-bold ${
                   (burnRate?.daily_burn_rate || 0) < 0 ? 'text-red-400' : 'text-green-400'
                 }`}>
-                  ${(burnRate?.daily_burn_rate || 0).toFixed(2)}
+                  ₹{(burnRate?.daily_burn_rate || 0).toFixed(2)}
                 </p>
               </div>
               <div className="bg-surface-card p-4 rounded-lg">
@@ -192,7 +173,7 @@ export default function Financials() {
                 <p className={`text-xl font-bold ${
                   (burnRate?.monthly_burn_rate || 0) < 0 ? 'text-red-400' : 'text-green-400'
                 }`}>
-                  ${(burnRate?.monthly_burn_rate || 0).toFixed(2)}
+                  ₹{(burnRate?.monthly_burn_rate || 0).toFixed(2)}
                 </p>
               </div>
               {burnRate?.runway_months && (
@@ -214,7 +195,7 @@ export default function Financials() {
                     <p className="text-xs text-surface-muted-foreground">{item.percentage}% of total</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold text-green-400">${(item.amount || 0).toLocaleString()}</p>
+                    <p className="text-sm font-bold text-green-400">₹{(item.amount || 0).toLocaleString()}</p>
                   </div>
                 </div>
               ))}
@@ -240,7 +221,7 @@ export default function Financials() {
                   <tr key={idx} className="hover:bg-surface-card transition">
                     <td className="px-4 py-3 text-surface-foreground">{item.category}</td>
                     <td className="px-4 py-3 text-right text-surface-foreground font-medium">
-                      ${(item.amount || 0).toLocaleString()}
+                      ₹{(item.amount || 0).toLocaleString()}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <span className="inline-block bg-brand/20 text-brand px-2.5 py-1 rounded text-xs font-medium">

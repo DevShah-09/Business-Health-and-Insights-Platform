@@ -9,8 +9,11 @@ from app.api import transactions, businesses, financials, health, forecast, ai_i
 from app.database.database import init_db, AsyncSessionLocal
 from app.models.user import User
 from app.models.business import Business
+from app.models.transaction import Transaction, TransactionType
 import uuid
 from sqlalchemy import select
+from datetime import date, timedelta
+from decimal import Decimal
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -44,7 +47,82 @@ async def lifespan(app: FastAPI):
             session.add(business)
             
         await session.commit()
+        
+        # Seed sample transactions if none exist
+        result = await session.execute(
+            select(Transaction).where(Transaction.business_id == mock_business_id)
+        )
+        existing_txs = result.scalars().all()
+
+        if not existing_txs:
+            # Create sample transactions for demo data
+            today = date.today()
+            sample_txs = [
+                # Income transactions
+                Transaction(
+                    business_id=mock_business_id,
+                    type=TransactionType.INCOME,
+                    amount=Decimal("18500.00"),
+                    category="Services",
+                    description="Consulting Project - Alpha Corp",
+                    transaction_date=today - timedelta(days=30),
+                    source="manual",
+                ),
+                Transaction(
+                    business_id=mock_business_id,
+                    type=TransactionType.INCOME,
+                    amount=Decimal("22300.00"),
+                    category="Products",
+                    description="Product Sales - Batch #47",
+                    transaction_date=today - timedelta(days=25),
+                    source="manual",
+                ),
+                Transaction(
+                    business_id=mock_business_id,
+                    type=TransactionType.INCOME,
+                    amount=Decimal("15600.00"),
+                    category="Services",
+                    description="Consulting - Beta Solutions",
+                    transaction_date=today - timedelta(days=20),
+                    source="manual",
+                ),
+                # Expense transactions
+                Transaction(
+                    business_id=mock_business_id,
+                    type=TransactionType.EXPENSE,
+                    amount=Decimal("28000.00"),
+                    category="Salaries",
+                    description="Monthly Payroll",
+                    transaction_date=today - timedelta(days=28),
+                    source="manual",
+                ),
+                Transaction(
+                    business_id=mock_business_id,
+                    type=TransactionType.EXPENSE,
+                    amount=Decimal("8500.00"),
+                    category="Operations",
+                    description="Office Utilities & Rent",
+                    transaction_date=today - timedelta(days=27),
+                    source="manual",
+                ),
+                Transaction(
+                    business_id=mock_business_id,
+                    type=TransactionType.EXPENSE,
+                    amount=Decimal("12000.00"),
+                    category="Products",
+                    description="Inventory Purchase",
+                    transaction_date=today - timedelta(days=24),
+                    source="manual",
+                ),
+            ]
+            
+            for tx in sample_txs:
+                session.add(tx)
+            
+            await session.commit()
+    
     yield
+
 
 app = FastAPI(
     title="SME Business Health Platform",

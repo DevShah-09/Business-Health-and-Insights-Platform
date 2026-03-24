@@ -5,9 +5,10 @@ import React from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
 function formatCurrency(val) {
-  if (val >= 1_000_000) return `$${(val / 1_000_000).toFixed(1)}M`;
-  if (val >= 1_000) return `$${(val / 1_000).toFixed(1)}K`;
-  return `$${val}`;
+  const number = Number(val) || 0;
+  if (number >= 1_000_000) return `₹${(number / 1_000_000).toFixed(1)}M`;
+  if (number >= 1_000) return `₹${(number / 1_000).toFixed(1)}K`;
+  return `₹${number.toLocaleString()}`;
 }
 
 export function KPICard({ label, value, delta, icon: Icon, color = '#6366f1', loading = false }) {

@@ -43,6 +43,7 @@ export function useTransactions() {
       await createTransaction(data);
       // Refresh to ensure we have the latest transactions from backend
       fetchTransactions();
+      window.dispatchEvent(new CustomEvent('financial-data-refresh'));
     } catch (err) {
       console.error('Failed to create transaction:', err);
       // Optionally show optimistic update or error toast
@@ -56,6 +57,7 @@ export function useTransactions() {
     try {
       await updateTransaction(id, data);
       fetchTransactions();
+      window.dispatchEvent(new CustomEvent('financial-data-refresh'));
     } catch (err) {
       console.error('Failed to update transaction:', err);
     } finally {
@@ -76,6 +78,7 @@ export function useTransactions() {
         await uploadUPILogs(file).catch(() => {});
       }
       fetchTransactions();
+      window.dispatchEvent(new CustomEvent('financial-data-refresh'));
     } finally {
       setSubmitting(false);
     }
@@ -86,6 +89,7 @@ export function useTransactions() {
     try {
       await autoCategorizeTransactions().catch(() => {});
       fetchTransactions();
+      window.dispatchEvent(new CustomEvent('financial-data-refresh'));
     } finally {
       setSubmitting(false);
     }
@@ -94,6 +98,7 @@ export function useTransactions() {
   const removeTransaction = async (id) => {
     await deleteTransaction(id).catch(() => {});
     setTransactions((prev) => prev.filter((t) => t.id !== id));
+    window.dispatchEvent(new CustomEvent('financial-data-refresh'));
   };
 
   return { transactions, loading, submitting, addTransaction, editTransaction, uploadFile, categorizeAll, removeTransaction };

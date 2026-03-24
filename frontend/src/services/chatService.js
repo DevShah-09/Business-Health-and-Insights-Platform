@@ -12,7 +12,7 @@ const BUSINESS_ID = '550e8400-e29b-41d4-a716-446655440001';
  * @param {Array}  history - Previous messages [ { role, content } ]
  */
 export const sendChatMessage = (businessId = BUSINESS_ID, message, history = []) =>
-  api.post(`/businesses/${businessId}/chat`, { 
+  api.post(`/api/v1/businesses/${businessId}/chat`, { 
     message, 
     conversation_history: history 
   }).then((r) => r.data);

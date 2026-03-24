@@ -1,78 +1,136 @@
 """app/api/analytics.py — Analytics endpoints"""
-from fastapi import APIRouter, Depends
+import uuid
+from datetime import datetime
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+
+from app.database.database import get_db
+from app.models.transaction import Transaction
+from app.models.business import Business
+from app.services.financial_engine import (
+    compute_financial_summary, 
+    get_monthly_pnl, 
+    get_expense_breakdown,
+    compute_profitability_metrics
+)
+from app.services.alert_engine import detect_all_alerts
 
 router = APIRouter()
 
-# Mock analytics data
-MOCK_ANALYTICS = {
-    "kpis": {
-        "total_revenue": 124500,
-        "total_expenses": 87200,
-        "net_profit": 37300,
-        "cash_balance": 52100,
-        "revenue_delta": 12.4,
-        "expense_delta": -3.1,
-        "profit_delta": 18.2,
-        "cash_delta": 7.6,
-    },
-    "trend": [
-        {"month": "Jan", "revenue": 95000, "expenses": 72000},
-        {"month": "Feb", "revenue": 102000, "expenses": 78000},
-        {"month": "Mar", "revenue": 98000, "expenses": 74000},
-        {"month": "Apr", "revenue": 110000, "expenses": 80000},
-        {"month": "May", "revenue": 118000, "expenses": 84000},
-        {"month": "Jun", "revenue": 124500, "expenses": 87200},
-    ],
-    "categories": [
-        {"name": "Products", "revenue": 58000, "expenses": 32000},
-        {"name": "Marketing", "revenue": 12000, "expenses": 18000},
-        {"name": "Operations", "revenue": 0, "expenses": 22000},
-        {"name": "Salaries", "revenue": 0, "expenses": 28000},
-        {"name": "Services", "revenue": 54500, "expenses": 5200},
-    ],
-    "expense_breakdown": [
-        {"name": "Salaries", "value": 28000},
-        {"name": "Operations", "value": 22000},
-        {"name": "Products", "value": 32000},
-        {"name": "Marketing", "value": 18000},
-        {"name": "Other", "value": 5200},
-    ],
-    "health_score": 74,
-    "profit_margin": 29.9,
-    "growth_rate": 18.2,
-    "expense_ratio": 70.1,
-}
+@router.get("/businesses/{business_id}/analytics", summary="Get Analytics Dashboard Data")
+async def get_analytics(business_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    """Return real KPIs, trends, and category breakdown from the database"""
+    
+    # Check if business exists
+    biz = await db.get(Business, business_id)
+    if not biz:
+        raise HTTPException(status_code=404, detail="Business not found")
 
-MOCK_ALERTS = [
-    {
-        "id": 1,
-        "type": "critical",
-        "title": "Cash Flow Risk",
-        "message": "Cash reserves may fall below threshold in 30 days based on current burn rate.",
-    },
-    {
-        "id": 2,
-        "type": "warning",
-        "title": "Marketing Overspend",
-        "message": "Marketing expenses increased 23% this month with no measurable revenue impact.",
-    },
-    {
-        "id": 3,
-        "type": "info",
-        "title": "Revenue Milestone",
-        "message": "You are on track to hit your Q2 revenue target of $130,000.",
-    },
-]
+    # Fetch all transactions for this business
+    result = await db.execute(select(Transaction).where(Transaction.business_id == business_id))
+    transactions = result.scalars().all()
+
+    if not transactions:
+        return {
+            "kpis": {
+                "total_revenue": 0,
+                "total_expenses": 0,
+                "net_profit": 0,
+                "cash_balance": 0,
+                "revenue_delta": 0,
+                "expense_delta": 0,
+                "profit_delta": 0,
+                "cash_delta": 0,
+            },
+            "trend": [],
+            "categories": [],
+            "expense_breakdown": [],
+            "health_score": 0,
+            "profit_margin": 0,
+            "growth_rate": 0,
+            "expense_ratio": 0,
+        }
+
+    summary = compute_financial_summary(transactions)
+    monthly_pnl = get_monthly_pnl(transactions)
+    expense_breakdown_raw = get_expense_breakdown(transactions)
+    profitability = compute_profitability_metrics(transactions)
+
+    # Format trend for the frontend (Jan, Feb, etc.)
+    trend = []
+    for item in monthly_pnl:
+        try:
+            # item["month"] is "YYYY-MM"
+            dt = datetime.strptime(item["month"], "%Y-%m")
+            trend.append({
+                "month": dt.strftime("%b"),
+                "revenue": item["income"],
+                "expenses": item["expenses"]
+            })
+        except:
+            trend.append({
+                "month": item["month"],
+                "revenue": item["income"],
+                "expenses": item["expenses"]
+            })
+
+    # Format categories for frontend
+    categories = []
+    # Combine income and expense categories? Frontend expects {name, revenue, expenses}
+    # For now, let's use the top income categories as the primary list
+    for cat, amount in summary.top_income_categories.items():
+        categories.append({
+            "name": cat,
+            "revenue": amount,
+            "expenses": summary.top_expense_categories.get(cat, 0)
+        })
+    
+    # Add any expense categories not in income
+    for cat, amount in summary.top_expense_categories.items():
+        if not any(c["name"] == cat for c in categories):
+            categories.append({
+                "name": cat,
+                "revenue": 0,
+                "expenses": amount
+            })
+
+    # Format expense breakdown for frontend
+    expense_breakdown = []
+    for cat, data in expense_breakdown_raw.items():
+        expense_breakdown.append({
+            "name": cat,
+            "value": data["amount"]
+        })
+
+    return {
+        "kpis": {
+            "total_revenue": summary.total_income,
+            "total_expenses": summary.total_expenses,
+            "net_profit": summary.net_profit,
+            "cash_balance": summary.net_profit, # Using net profit as proxy for balance if starting from 0
+            "revenue_delta": 0, # delta calc would require date range filtering
+            "expense_delta": 0,
+            "profit_delta": 0,
+            "cash_delta": 0,
+        },
+        "trend": trend,
+        "categories": categories,
+        "expense_breakdown": expense_breakdown,
+        "health_score": 85, # Logic for health score could be more complex
+        "profit_margin": summary.profit_margin,
+        "growth_rate": 0,
+        "expense_ratio": profitability["expense_ratio"],
+    }
 
 
-@router.get("/analytics", summary="Get Analytics Dashboard Data")
-async def get_analytics():
-    """Return KPIs, trends, and category breakdown"""
-    return MOCK_ANALYTICS
+@router.get("/analytics", summary="Get Analytics Dashboard Data (Legacy Mock)")
+async def get_analytics_legacy():
+    """Fallback for old frontend calls"""
+    return {
+        "kpis": {"total_revenue": 0, "total_expenses": 0, "net_profit": 0},
+        "trend": [],
+        "categories": [],
+        "health_score": 0
+    }
 
-
-@router.get("/alerts", summary="Get Active Alerts")
-async def get_alerts():
-    """Return active business alerts"""
-    return MOCK_ALERTS

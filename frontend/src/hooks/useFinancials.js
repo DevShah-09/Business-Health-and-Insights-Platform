@@ -83,6 +83,9 @@ export function useFinancials() {
     };
 
     fetchAllFinancials();
+
+    window.addEventListener('financial-data-refresh', fetchAllFinancials);
+    return () => window.removeEventListener('financial-data-refresh', fetchAllFinancials);
   }, []);
 
   return {

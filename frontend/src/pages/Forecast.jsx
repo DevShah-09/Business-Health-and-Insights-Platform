@@ -24,7 +24,7 @@ export default function Forecast() {
                <div>
                   <p className="text-xs text-surface-muted-foreground">Projected Revenue</p>
                   <p className="text-xl font-bold text-surface-foreground">
-                    ${(forecast?.summary?.predicted_revenue || 0).toLocaleString()}
+                    ₹{(forecast?.summary?.predicted_revenue || 0).toLocaleString()}
                   </p>
                </div>
             </Card>
@@ -35,7 +35,7 @@ export default function Forecast() {
                <div>
                   <p className="text-xs text-surface-muted-foreground">Projected Expenses</p>
                   <p className="text-xl font-bold text-surface-foreground">
-                    ${(forecast?.summary?.predicted_expenses || 0).toLocaleString()}
+                    ₹{(forecast?.summary?.predicted_expenses || 0).toLocaleString()}
                   </p>
                </div>
             </Card>
@@ -46,7 +46,7 @@ export default function Forecast() {
                <div>
                   <p className="text-xs text-surface-muted-foreground">End-of-Year Cash</p>
                   <p className="text-xl font-bold text-surface-foreground">
-                    ${(forecast?.summary?.predicted_cashflow || 0).toLocaleString()}
+                    ₹{(forecast?.summary?.predicted_cashflow || 0).toLocaleString()}
                   </p>
                </div>
             </Card>

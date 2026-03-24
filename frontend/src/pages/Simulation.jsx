@@ -56,9 +56,9 @@ function ScenarioCard({ scenario }) {
 
         {/* New Values */}
         <div className="bg-gray-50 rounded p-3 text-xs space-y-1">
-          <p className="text-gray-600"><span className="font-semibold">Revenue:</span> ${(adjusted.total_income).toLocaleString('en-US', {maximumFractionDigits: 0})}</p>
-          <p className="text-gray-600"><span className="font-semibold">Expenses:</span> ${(adjusted.total_expenses).toLocaleString('en-US', {maximumFractionDigits: 0})}</p>
-          <p className="text-gray-600"><span className="font-semibold">New Profit:</span> ${(adjusted.net_profit).toLocaleString('en-US', {maximumFractionDigits: 0})} ({adjusted.profit_margin.toFixed(1)}%)</p>
+          <p className="text-gray-600"><span className="font-semibold">Revenue:</span> ₹{(adjusted.total_income).toLocaleString('en-US', {maximumFractionDigits: 0})}</p>
+          <p className="text-gray-600"><span className="font-semibold">Expenses:</span> ₹{(adjusted.total_expenses).toLocaleString('en-US', {maximumFractionDigits: 0})}</p>
+          <p className="text-gray-600"><span className="font-semibold">New Profit:</span> ₹{(adjusted.net_profit).toLocaleString('en-US', {maximumFractionDigits: 0})} ({adjusted.profit_margin.toFixed(1)}%)</p>
         </div>
       </div>
     </div>

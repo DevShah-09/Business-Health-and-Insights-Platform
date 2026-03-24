@@ -57,11 +57,22 @@ export function useAnalytics() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  const fetchAnalytics = () => {
+    setLoading(true);
     getAnalytics()
       .then(setData)
-      .catch(() => setData(MOCK_ANALYTICS))
+      .catch((err) => {
+        console.error('Failed to fetch analytics:', err);
+        setError('Unable to load analytics data.');
+      })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchAnalytics();
+    
+    window.addEventListener('financial-data-refresh', fetchAnalytics);
+    return () => window.removeEventListener('financial-data-refresh', fetchAnalytics);
   }, []);
 
   return { data, loading, error };
@@ -70,13 +81,17 @@ export function useAnalytics() {
 export function useAlerts() {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     getAlerts(BUSINESS_ID)
-      .then((res) => setAlerts(res.alerts || MOCK_ALERTS))
-      .catch(() => setAlerts(MOCK_ALERTS))
+      .then((res) => setAlerts(res.alerts || []))
+      .catch((err) => {
+        console.error('Failed to fetch alerts:', err);
+        setError('Unable to load alerts.');
+      })
       .finally(() => setLoading(false));
   }, []);
 
-  return { alerts, loading };
+  return { alerts, loading, error };
 }

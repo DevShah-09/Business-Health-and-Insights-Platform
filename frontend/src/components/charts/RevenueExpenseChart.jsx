@@ -17,7 +17,7 @@ export function RevenueExpenseChart({ data, loading }) {
           <LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#2d3449" vertical={false} />
             <XAxis dataKey="month" stroke="#475569" fontSize={12} tickLine={false} axisLine={false} />
-            <YAxis stroke="#475569" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v/1000}k`} />
+            <YAxis stroke="#475569" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${v/1000}k`} />
             <Tooltip
               contentStyle={{ backgroundColor: '#171f33', borderColor: '#334155', borderRadius: '8px', color: '#dae2fd' }}
               itemStyle={{ color: '#dae2fd' }}
