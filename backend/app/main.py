@@ -55,87 +55,32 @@ async def lifespan(app: FastAPI):
         existing_txs = result.scalars().all()
 
         if not existing_txs:
-<<<<<<< HEAD
             # Create sample transactions for demo data (spread across two months)
             today = date.today()
             last_month = today - timedelta(days=30)
             
             sample_txs = [
-                # --- LAST MONTH (High Margin, Moderate Marketing) ---
-                Transaction(business_id=mock_business_id, type=TransactionType.INCOME, amount=Decimal("80000.00"), category="Services", description="Enterprise Project", transaction_date=last_month - timedelta(days=5)),
-                Transaction(business_id=mock_business_id, type=TransactionType.EXPENSE, amount=Decimal("5000.00"), category="Marketing", description="Foundational SEO", transaction_date=last_month - timedelta(days=10)),
-                Transaction(business_id=mock_business_id, type=TransactionType.EXPENSE, amount=Decimal("15000.00"), category="Rent", description="Office", transaction_date=last_month - timedelta(days=2)),
-                Transaction(business_id=mock_business_id, type=TransactionType.EXPENSE, amount=Decimal("20000.00"), category="Salaries", description="Core Team", transaction_date=last_month - timedelta(days=1)),
+                # --- MONTH 1 (Zero Marketing) ---
+                Transaction(business_id=mock_business_id, type=TransactionType.INCOME, amount=Decimal("150000.00"), category="Services", description="Base Retainer", transaction_date=last_month - timedelta(days=60), source="manual"),
+                Transaction(business_id=mock_business_id, type=TransactionType.EXPENSE, amount=Decimal("0.00"), category="Marketing", description="No Ads", transaction_date=last_month - timedelta(days=60), source="manual"),
                 
-                # --- CURRENT MONTH (Revenue growth stagnant, Marketing spend spiked, Rent same) ---
-                Transaction(business_id=mock_business_id, type=TransactionType.INCOME, amount=Decimal("82000.00"), category="Services", description="Enterprise Retainer", transaction_date=today - timedelta(days=5)),
-                Transaction(business_id=mock_business_id, type=TransactionType.EXPENSE, amount=Decimal("18000.00"), category="Marketing", description="Aggressive Ad Campaign", transaction_date=today - timedelta(days=15)),
-                Transaction(business_id=mock_business_id, type=TransactionType.EXPENSE, amount=Decimal("15000.00"), category="Rent", description="Office", transaction_date=today - timedelta(days=2)),
-                Transaction(business_id=mock_business_id, type=TransactionType.EXPENSE, amount=Decimal("20000.00"), category="Salaries", description="Core Team", transaction_date=today - timedelta(days=1)),
-                Transaction(business_id=mock_business_id, type=TransactionType.EXPENSE, amount=Decimal("5000.00"), category="Software", description="SaaS Subscriptions", transaction_date=today - timedelta(days=10)),
-                Transaction(business_id=mock_business_id, type=TransactionType.EXPENSE, amount=Decimal("3000.00"), category="Operations", description="Cloud Infrastructure", transaction_date=today - timedelta(days=12)),
-=======
-            # Create sample transactions for demo data
-            today = date.today()
-            sample_txs = [
-                # Income transactions
-                Transaction(
-                    business_id=mock_business_id,
-                    type=TransactionType.INCOME,
-                    amount=Decimal("18500.00"),
-                    category="Services",
-                    description="Consulting Project - Alpha Corp",
-                    transaction_date=today - timedelta(days=30),
-                    source="manual",
-                ),
-                Transaction(
-                    business_id=mock_business_id,
-                    type=TransactionType.INCOME,
-                    amount=Decimal("22300.00"),
-                    category="Products",
-                    description="Product Sales - Batch #47",
-                    transaction_date=today - timedelta(days=25),
-                    source="manual",
-                ),
-                Transaction(
-                    business_id=mock_business_id,
-                    type=TransactionType.INCOME,
-                    amount=Decimal("15600.00"),
-                    category="Services",
-                    description="Consulting - Beta Solutions",
-                    transaction_date=today - timedelta(days=20),
-                    source="manual",
-                ),
-                # Expense transactions
-                Transaction(
-                    business_id=mock_business_id,
-                    type=TransactionType.EXPENSE,
-                    amount=Decimal("28000.00"),
-                    category="Salaries",
-                    description="Monthly Payroll",
-                    transaction_date=today - timedelta(days=28),
-                    source="manual",
-                ),
-                Transaction(
-                    business_id=mock_business_id,
-                    type=TransactionType.EXPENSE,
-                    amount=Decimal("8500.00"),
-                    category="Operations",
-                    description="Office Utilities & Rent",
-                    transaction_date=today - timedelta(days=27),
-                    source="manual",
-                ),
-                Transaction(
-                    business_id=mock_business_id,
-                    type=TransactionType.EXPENSE,
-                    amount=Decimal("12000.00"),
-                    category="Products",
-                    description="Inventory Purchase",
-                    transaction_date=today - timedelta(days=24),
-                    source="manual",
-                ),
->>>>>>> ff5355d3df9c89d77b889ad7199a02f8510ae0b4
+                # --- MONTH 2 (Low Revenue, Still Zero Marketing) ---
+                Transaction(business_id=mock_business_id, type=TransactionType.INCOME, amount=Decimal("120000.00"), category="Services", description="Slow Month", transaction_date=last_month - timedelta(days=30), source="manual"),
+                Transaction(business_id=mock_business_id, type=TransactionType.EXPENSE, amount=Decimal("0.00"), category="Marketing", description="No Ads", transaction_date=last_month - timedelta(days=30), source="manual"),
+                
+                # --- MONTH 3 (Marketing Spiked, Revenue Spiked SUCCESS) ---
+                Transaction(business_id=mock_business_id, type=TransactionType.INCOME, amount=Decimal("350000.00"), category="Services", description="Huge Growth", transaction_date=today - timedelta(days=15), source="manual"),
+                Transaction(business_id=mock_business_id, type=TransactionType.EXPENSE, amount=Decimal("45000.00"), category="Marketing", description="Aggressive Campaign", transaction_date=today - timedelta(days=20), source="manual"),
+                
+                # --- MONTH 4 (Marketing Spiked MORE, Revenue STAGNANT FAILURE) ---
+                Transaction(business_id=mock_business_id, type=TransactionType.INCOME, amount=Decimal("360000.00"), category="Services", description="Enterprise Retainer", transaction_date=today - timedelta(days=5), source="manual"),
+                Transaction(business_id=mock_business_id, type=TransactionType.EXPENSE, amount=Decimal("120000.00"), category="Marketing", description="Over-saturated Ads", transaction_date=today - timedelta(days=5), source="manual"),
+                
+                # General overhead
+                Transaction(business_id=mock_business_id, type=TransactionType.EXPENSE, amount=Decimal("20000.00"), category="Rent", description="Office", transaction_date=today - timedelta(days=2), source="manual"),
+                Transaction(business_id=mock_business_id, type=TransactionType.EXPENSE, amount=Decimal("60000.00"), category="Salaries", description="Core Team", transaction_date=today - timedelta(days=1), source="manual"),
             ]
+
             
             for tx in sample_txs:
                 session.add(tx)
