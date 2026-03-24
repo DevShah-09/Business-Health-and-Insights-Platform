@@ -1,0 +1,182 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&family=DM+Mono&family=Plus+Jakarta+Sans:wght@600;700&family=Manrope:wght@400;500;600&family=Inter:wght@400;500&display=swap');
+@import "tailwindcss";
+
+/* ─── Design Tokens ─────────────────────────────────────────────────────── */
+@theme {
+  --font-sans: 'DM Sans', 'Manrope', system-ui, sans-serif;
+  --font-headline: 'Sora', 'Plus Jakarta Sans', sans-serif;
+  --font-label: 'DM Mono', 'Inter', monospace;
+
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-card: var(--surface-card);
+  --color-surface-border: var(--surface-border);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-surface-muted-foreground: var(--surface-muted-foreground);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-muted: var(--brand-muted);
+  
+  --shadow-editorial: var(--shadow-editorial);
+  --shadow-glow: 0 0 20px rgba(163, 57, 0, 0.25);
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --background: #f9f9f8;
+    --surface: #f3f4f3;
+    --surface-card: #ffffff;
+    --surface-border: #e2bfb2;
+    --surface-muted: #e9e1dd;
+    --surface-foreground: #1a1c1c;
+    --surface-muted-foreground: #5a4138;
+    --brand: #a33900;
+    --brand-hover: #cc4900;
+    --brand-muted: #ffdbce;
+    --bg-gradient: var(--background);
+    
+    --shadow-editorial: 0 20px 40px -15px rgba(26, 28, 28, 0.08);
+  }
+
+  .dark {
+    --background: #100e0d;
+    --surface: #151312;
+    --surface-card: #221f1e;
+    --surface-border: #373433;
+    --surface-muted: #1d1b1a;
+    --surface-foreground: #e8e1df;
+    --surface-muted-foreground: #e2bfb2;
+    --brand: #f66018;
+    --brand-hover: #ffb599;
+    --brand-muted: #7c3313;
+    --bg-gradient: var(--background);
+    
+    --shadow-editorial: 0 24px 48px rgba(0, 0, 0, 0.4);
+  }
+
+  * {
+    border-color: var(--color-surface-border);
+  }
+
+  body {
+    background: var(--bg-gradient);
+    color: var(--surface-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-headline);
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-surface);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background: var(--color-surface-muted);
+  }
+}
+
+/* ─── Components ─────────────────────────────────────────────────────────── */
+@layer components {
+  .card {
+    border-radius: 1.5rem;
+    background-color: var(--color-surface-card);
+    border: 1px solid var(--color-surface-border);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-editorial);
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, var(--color-brand-hover) 0%, var(--color-brand) 100%);
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: white;
+    box-shadow: var(--shadow-editorial);
+    transition: all 0.15s ease;
+  }
+
+  .btn-primary:hover {
+    opacity: 0.9;
+  }
+
+  .btn-primary:active {
+    transform: scale(0.95);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-surface-border);
+    background-color: transparent;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-surface-muted-foreground);
+    transition: all 0.15s ease;
+  }
+
+  .btn-ghost:hover {
+    background-color: var(--color-surface-muted);
+    color: var(--color-surface-foreground);
+  }
+
+  .btn-ghost:active {
+    transform: scale(0.95);
+  }
+
+  .stat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 9999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .input {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 0;
+    border-bottom: 2px solid var(--color-surface-border);
+    background-color: transparent;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-surface-foreground);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .input::placeholder {
+    color: var(--color-surface-muted-foreground);
+    font-weight: 500;
+  }
+
+  .input:focus {
+    border-color: var(--color-brand);
+    box-shadow: 0 1px 0 0 var(--color-brand);
+  }
+}
