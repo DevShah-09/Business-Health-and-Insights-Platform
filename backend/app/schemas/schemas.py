@@ -97,6 +97,8 @@ class ForecastPoint(BaseModel):
     predicted_expenses: float
     confidence_lower: float
     confidence_upper: float
+    income_confidence: float = 50.0
+    expense_confidence: float = 50.0
 
 class AnomalyRecord(BaseModel):
     transaction_id: uuid.UUID

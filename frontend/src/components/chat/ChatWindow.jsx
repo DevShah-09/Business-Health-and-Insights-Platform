@@ -28,7 +28,7 @@ export function ChatWindow({ businessId = '550e8400-e29b-41d4-a716-446655440001'
   };
 
   const displayMessages = messages.length > 0 ? messages : [
-    { role: 'assistant', content: 'Hello! I am your AI financial assistant. I can help analyze your expenses, predict cash flow, or suggest budget optimizations. How can I help you today?' }
+    { role: 'assistant', content: 'Namaste! Main aapka AI financial assistant hoon. Main aapke expenses analyze karne, cash flow predict karne, ya budget optimize karne me help kar sakta hu. Boliye, aaj main aapki kya madad karu?' }
   ];
 
   return (

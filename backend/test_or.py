@@ -2,7 +2,7 @@ import asyncio
 from openai import AsyncOpenAI
 
 async def test():
-    key = "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"
+    key = "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"
     client = AsyncOpenAI(api_key=key, base_url="https://openrouter.ai/api/v1")
     try:
         response = await client.chat.completions.create(

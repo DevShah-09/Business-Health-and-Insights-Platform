@@ -25,24 +25,30 @@ def forecast_next_n_months(transactions: list[Any], n: int = 6) -> list[Forecast
 
     def _predict(series: pd.Series, n_future: int):
         if len(series) == 1:
-            # If only one month of data, project flat-line based on that month
             val = float(series.iloc[0])
-            return [val] * n_future, [max(0, val * 0.8)] * n_future, [val * 1.2] * n_future
+            return [val] * n_future, [max(0, val * 0.8)] * n_future, [val * 1.2] * n_future, 50.0  # Default confidence
         if len(series) < 1:
-            return [0.0] * n_future, [0.0] * n_future, [0.0] * n_future
+            return [0.0] * n_future, [0.0] * n_future, [0.0] * n_future, 0.0
+            
         X = np.arange(len(series)).reshape(-1, 1)
         y = series.values.astype(float)
         model = LinearRegression().fit(X, y)
+        
+        # Calculate R^2 score as confidence proxy (bound between 10 and 99)
+        score = model.score(X, y)
+        # If variance is 0 (straight line actuals), Score is 1.0. If noisy, could be lower.
+        confidence = max(10.0, min(99.0, score * 100)) if len(series) > 2 else 75.0
+        
         std = float(np.std(y - model.predict(X)))
         preds = np.maximum(model.predict(np.arange(len(series), len(series) + n_future).reshape(-1, 1)), 0)
-        return preds.tolist(), np.maximum(preds - std, 0).tolist(), (preds + std).tolist()
+        return preds.tolist(), np.maximum(preds - std, 0).tolist(), (preds + std).tolist(), confidence
 
     all_periods = sorted(set(list(inc_s.index) + list(exp_s.index)))
-    last = all_periods[-1] if all_periods else pd.Period("2024-01", "M")
+    last = all_periods[-1] if all_periods else pd.Period(pd.Timestamp("today"), "M")
     future = [last + i for i in range(1, n + 1)]
 
-    ip, ilo, ihi = _predict(inc_s, n)
-    ep, elo, ehi = _predict(exp_s, n)
+    ip, ilo, ihi, i_conf = _predict(inc_s, n)
+    ep, elo, ehi, e_conf = _predict(exp_s, n)
 
     return [
         ForecastPoint(

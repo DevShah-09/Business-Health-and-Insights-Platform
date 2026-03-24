@@ -8,9 +8,9 @@ export function ForecastChart({ data, loading }) {
     return <div className="h-[400px] w-full animate-pulse bg-surface-card rounded-xl" />;
   }
 
-  // Find the index where prediction starts (assuming last 3 months are predicted for mockup purposes, or data could supply 'isPredicted' flag)
-  // For this mock, we'll just draw a reference line at 'Oct'
-  const predictionStartIndex = "Oct"; 
+  // Find the first month where prediction starts dynamically
+  const firstPredicted = data.find(d => d.isPredicted);
+  const predictionStartIndex = firstPredicted ? firstPredicted.month : null;
 
   return (
     <div className="h-[400px] w-full border border-[var(--color-surface-border)] rounded-xl bg-[var(--color-surface-card)] p-4">

@@ -383,10 +383,29 @@ def compute_profitability_metrics(transactions: list[Any]) -> dict:
             "expense_ratio": 100,
         }
     
-    gross_margin = (net_profit / total_income) * 100
-    operating_ratio = (total_expenses / total_income) * 100
-    net_margin = gross_margin
-    expense_ratio = (total_expenses / total_income) * 100
+    gross_margin = 0
+    operating_ratio = 100
+    net_margin = 0
+    expense_ratio = 100
+
+    if total_income > 0:
+        # Define typical Cost of Goods Sold (COGS) vs Operating Expenses (OPEX)
+        cogs_categories = ["inventory", "materials", "freelancers", "contractors", "equipment", "software", "production", "direct costs"]
+        
+        # Calculate exactly how much is COGS
+        expenses_df = df[df["type"] == "expense"]
+        cogs = float(expenses_df[expenses_df["category"].str.lower().isin(cogs_categories)]["amount"].sum())
+        
+        # OPEX is everything else
+        opex = total_expenses - cogs
+        
+        gross_profit = total_income - cogs
+        
+        gross_margin = (gross_profit / total_income) * 100
+        net_margin = (net_profit / total_income) * 100
+        
+        operating_ratio = (opex / total_income) * 100
+        expense_ratio = (total_expenses / total_income) * 100
     
     return {
         "gross_margin": round(gross_margin, 2),

@@ -59,6 +59,7 @@ All financial amounts are in Indian Rupees (₹). Please use the ₹ symbol in y
 **Top Income Categories:** {income_str if income_str else "None"}
 
 Provide concise, actionable financial advice based on this data.
+You MUST communicate strictly in conversational Hinglish (a mix of Hindi and English written in the Latin alphabet). Example: "Aapke marketing expenses kaafi high hain, isko reduce karna chahiye." Keep it friendly and professional.
 """
     return context
 

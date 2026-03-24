@@ -17,7 +17,6 @@ export default function Simulation() {
     mode: 'sandbox'
   });
 
-  const [isSandbox, setIsSandbox] = useState(true);
 
   // Initial simulation on load or when analytics change
   useEffect(() => {
@@ -32,18 +31,6 @@ export default function Simulation() {
       business_id: BUSINESS_ID,
       mode: 'sandbox'
     });
-  };
-
-  const handleCommitToMarket = async () => {
-    setIsSandbox(false);
-    try {
-      // Logic for actually committing would go here
-      // For now, we simulate success
-      await new Promise(resolve => setTimeout(resolve, 800));
-      alert("Decision Implemented: Market State Updated. (Mock behavior)");
-    } finally {
-      setIsSandbox(true);
-    }
   };
 
   if (analyticsLoading && !analytics) {
@@ -133,21 +120,14 @@ export default function Simulation() {
                   Run Sandbox Simulation
                 </button>
                 
-                <button
-                  onClick={handleCommitToMarket}
-                  disabled={simulationLoading}
-                  className="w-full bg-surface-muted text-surface-foreground py-3 rounded-xl font-bold flex items-center justify-center gap-2 border border-surface-border hover:bg-surface-card transition"
-                >
-                  <Save className="w-4 h-4" />
-                  Commit to Market Plan
-                </button>
+
               </div>
             </div>
 
             <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl flex gap-3">
               <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0" />
               <p className="text-xs text-blue-200/80 leading-relaxed">
-                Changes in Sandbox mode are temporary and do not affect your actual transaction records. Commit only when you want to update your projections.
+                Changes in Sandbox mode are temporary and do not affect your actual transaction records.
               </p>
             </div>
           </Card>

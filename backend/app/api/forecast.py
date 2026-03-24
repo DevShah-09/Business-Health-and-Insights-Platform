@@ -30,10 +30,36 @@ async def forecast(
     # 1. Get raw forecast points
     raw_points = forecast_next_n_months(transactions, n=months)
     
-    # 2. Format for ForecastChart (month, revenue, expenses, cashflow)
+    # Generate Historical Data (last 4 months) to prepend to chart
     monthly_data = []
+    
+    # We want to show a seamless line, so let's get actuals leading up to the forecast.
+    # Group past transactions by month.
+    import pandas as pd
+    df = pd.DataFrame([{"amount": float(t.amount), "type": t.type.value, "date": pd.to_datetime(t.transaction_date)} for t in transactions])
+    
+    actuals = {}
+    if not df.empty:
+        df["month"] = df["date"].dt.to_period("M")
+        for m in df["month"].unique():
+            m_df = df[df["month"] == m]
+            inc = m_df[m_df["type"] == "income"]["amount"].sum()
+            exp = m_df[m_df["type"] == "expense"]["amount"].sum()
+            actuals[str(m)] = {
+                "month": m.strftime("%b"),
+                "revenue": float(inc),
+                "expenses": float(exp),
+                "cashflow": float(inc - exp),
+                "isPredicted": False
+            }
+            
+    # Sort past actuals and take last 4
+    sorted_actuals = [actuals[m] for m in sorted(actuals.keys())]
+    monthly_data.extend(sorted_actuals[-4:])
+    
+    # 2. Format for ForecastChart
+    avg_i_conf, avg_e_conf = 0.0, 0.0
     for p in raw_points:
-        # Parse "2024-07" -> "Jul"
         try:
             dt = datetime.strptime(p.date, "%Y-%m")
             month_label = calendar.month_name[dt.month][:3]
@@ -47,19 +73,19 @@ async def forecast(
             "cashflow": round(p.predicted_income - p.predicted_expenses, 2),
             "isPredicted": True
         })
+        avg_i_conf = p.income_confidence
+        avg_e_conf = p.expense_confidence
 
-    # 3. Compute Summary
+    # 3. Compute Summary from FUTURE RAW POINTS ONLY
     total_revenue = sum(p.predicted_income for p in raw_points)
     total_expenses = sum(p.predicted_expenses for p in raw_points)
     
-    # For confidence, we'll return stable high mock values for now 
-    # unless we want to derive from confidence_lower/upper
     summary = {
         "predicted_revenue": round(total_revenue, 2),
         "predicted_expenses": round(total_expenses, 2),
         "predicted_cashflow": round(total_revenue - total_expenses, 2),
-        "revenue_confidence": 88,
-        "expense_confidence": 92
+        "revenue_confidence": round(avg_i_conf) if raw_points else 88,
+        "expense_confidence": round(avg_e_conf) if raw_points else 92
     }
 
     return {
