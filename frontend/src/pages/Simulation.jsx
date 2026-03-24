@@ -1,142 +1,252 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, AlertCircle, Activity } from 'lucide-react';
+import { TrendingUp, TrendingDown, AlertCircle, Activity, Save, RefreshCw, IndianRupee, PieChart } from 'lucide-react';
 import { useSimulation } from '../hooks/useSimulation';
+import { useAnalytics } from '../hooks/useAnalytics';
 import { Card } from '../components/ui/Card';
+import { TopBar } from '../components/dashboard/TopBar';
 
-
-const BusinessID = '550e8400-e29b-41d4-a716-446655440001';
-
-function ScenarioCard({ scenario }) {
-  const impact = scenario.impact;
-  const adjusted = scenario.adjusted;
-  
-  return (
-    <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
-      <h3 className="font-semibold text-gray-900 mb-4">{scenario.scenario}</h3>
-      
-      <div className="space-y-4">
-        {/* Impact Summary */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-blue-50 p-3 rounded">
-            <p className="text-xs text-blue-600 font-medium">Revenue Impact</p>
-            <p className={`text-lg font-bold ${impact.revenue_impact_pct >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {impact.revenue_impact_pct >= 0 ? '+' : ''}{impact.revenue_impact_pct.toFixed(1)}%
-            </p>
-          </div>
-          
-          <div className="bg-orange-50 p-3 rounded">
-            <p className="text-xs text-orange-600 font-medium">Cost Impact</p>
-            <p className={`text-lg font-bold ${impact.expense_impact_pct < 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {impact.expense_impact_pct < 0 ? '' : '+'}{impact.expense_impact_pct.toFixed(1)}%
-            </p>
-          </div>
-        </div>
-
-        {/* Profit Impact - Main */}
-        <div className={`${impact.profit_impact > 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} rounded-lg p-4 border`}>
-          <p className={`text-xs font-medium mb-2 ${impact.profit_impact > 0 ? 'text-green-600' : 'text-red-600'}`}>
-            Profit Impact
-          </p>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className={`text-2xl font-bold ${impact.profit_impact > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {impact.profit_impact > 0 ? '+' : ''}{(impact.profit_impact).toLocaleString('en-US', {maximumFractionDigits: 0})}
-              </p>
-              <p className={`text-xs mt-1 ${impact.profit_impact > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {impact.profit_impact_pct > 0 ? '+' : ''}{impact.profit_impact_pct.toFixed(1)}% margin change
-              </p>
-            </div>
-            {impact.profit_impact > 0 ? (
-              <TrendingUp className="w-8 h-8 text-green-600" />
-            ) : (
-              <TrendingDown className="w-8 h-8 text-red-600" />
-            )}
-          </div>
-        </div>
-
-        {/* New Values */}
-        <div className="bg-gray-50 rounded p-3 text-xs space-y-1">
-          <p className="text-gray-600"><span className="font-semibold">Revenue:</span> ₹{(adjusted.total_income).toLocaleString('en-US', {maximumFractionDigits: 0})}</p>
-          <p className="text-gray-600"><span className="font-semibold">Expenses:</span> ₹{(adjusted.total_expenses).toLocaleString('en-US', {maximumFractionDigits: 0})}</p>
-          <p className="text-gray-600"><span className="font-semibold">New Profit:</span> ₹{(adjusted.net_profit).toLocaleString('en-US', {maximumFractionDigits: 0})} ({adjusted.profit_margin.toFixed(1)}%)</p>
-        </div>
-      </div>
-    </div>
-  );
-}
+const BUSINESS_ID = '550e8400-e29b-41d4-a716-446655440001';
 
 export default function Simulation() {
-  const { scenarios, loading, loadScenarioBatch } = useSimulation(BusinessID);
+  const { results, loading: simulationLoading, runSimulation, error } = useSimulation();
+  const { analytics, loading: analyticsLoading } = useAnalytics();
+  
+  const [params, setParams] = useState({
+    income_change_pct: 0,
+    expense_change_pct: 0,
+    mode: 'sandbox'
+  });
 
+  const [isSandbox, setIsSandbox] = useState(true);
+
+  // Initial simulation on load or when analytics change
   useEffect(() => {
-    loadScenarioBatch();
-  }, []);
+    if (analytics?.summary) {
+      handleSimulate();
+    }
+  }, [analytics]);
+
+  const handleSimulate = async () => {
+    await runSimulation({
+      ...params,
+      business_id: BUSINESS_ID,
+      mode: 'sandbox'
+    });
+  };
+
+  const handleCommitToMarket = async () => {
+    setIsSandbox(false);
+    try {
+      // Logic for actually committing would go here
+      // For now, we simulate success
+      await new Promise(resolve => setTimeout(resolve, 800));
+      alert("Decision Implemented: Market State Updated. (Mock behavior)");
+    } finally {
+      setIsSandbox(true);
+    }
+  };
+
+  if (analyticsLoading && !analytics) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <RefreshCw className="w-8 h-8 animate-spin text-brand" />
+      </div>
+    );
+  }
+
+  const current = analytics?.summary || {};
+  const projected = results?.projected || {};
+  const impact = results?.impact || {};
 
   return (
     <div className="flex flex-col h-full bg-[var(--color-surface)] overflow-y-auto">
+      <TopBar />
+      
+      {/* Page Header */}
+      <div className="px-8 py-6 border-b border-surface-border/30 bg-surface-card/50">
+        <h1 className="text-3xl font-bold text-surface-foreground mb-2">Scenario Simulation</h1>
+        <p className="text-sm text-surface-muted-foreground">Test how business changes affect your bottom line</p>
+      </div>
 
+      <main className="p-6 space-y-6 max-w-[1400px] w-full mx-auto pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Controls Panel */}
+          <Card className="lg:col-span-1 space-y-6">
+            <h3 className="text-lg font-bold text-surface-foreground flex items-center gap-2">
+              <Activity className="w-5 h-5 text-brand" />
+              Simulation Controls
+            </h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-surface-muted-foreground mb-2 uppercase tracking-wider">
+                  Income Change (%)
+                </label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min="-50"
+                    max="100"
+                    step="1"
+                    value={params.income_change_pct}
+                    onChange={(e) => setParams({ ...params, income_change_pct: parseInt(e.target.value) })}
+                    className="flex-1 accent-brand"
+                  />
+                  <span className={`w-12 text-right font-bold ${params.income_change_pct >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {params.income_change_pct}%
+                  </span>
+                </div>
+              </div>
 
-      <main className="p-6 space-y-8 max-w-[1400px] w-full mx-auto pb-12">
-        {/* Header Card */}
-        <Card>
-          <div className="flex items-start gap-4">
-            <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-1" />
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-2">What-If Analysis</h3>
-              <p className="text-sm text-gray-600">
-                Simulate different business scenarios to understand their financial impact. See how changes in revenue and expenses affect your profit, cash flow, and overall business health.
-              </p>
-            </div>
-          </div>
-        </Card>
+              <div>
+                <label className="block text-xs font-medium text-surface-muted-foreground mb-2 uppercase tracking-wider">
+                  Expense Change (%)
+                </label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min="-50"
+                    max="100"
+                    step="1"
+                    value={params.expense_change_pct}
+                    onChange={(e) => setParams({ ...params, expense_change_pct: parseInt(e.target.value) })}
+                    className="flex-1 accent-red-400"
+                  />
+                  <span className={`w-12 text-right font-bold ${params.expense_change_pct <= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {params.expense_change_pct}%
+                  </span>
+                </div>
+              </div>
 
-        {/* Loading State */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="h-80 bg-gray-100 rounded-lg animate-pulse" />
-            ))}
-          </div>
-        ) : scenarios && Object.keys(scenarios).length > 0 ? (
-          <>
-            <div>
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Pre-built Scenarios</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Object.entries(scenarios).map(([key, scenario]) => (
-                  <ScenarioCard key={key} scenario={scenario} />
-                ))}
+              <div className="pt-4 flex flex-col gap-2">
+                <button
+                  onClick={handleSimulate}
+                  disabled={simulationLoading}
+                  className="w-full bg-brand text-surface-foreground py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-4 h-4 ${simulationLoading ? 'animate-spin' : ''}`} />
+                  Run Sandbox Simulation
+                </button>
+                
+                <button
+                  onClick={handleCommitToMarket}
+                  disabled={simulationLoading}
+                  className="w-full bg-surface-muted text-surface-foreground py-3 rounded-xl font-bold flex items-center justify-center gap-2 border border-surface-border hover:bg-surface-card transition"
+                >
+                  <Save className="w-4 h-4" />
+                  Commit to Market Plan
+                </button>
               </div>
             </div>
-          </>
-        ) : (
-          <div className="text-center py-12 bg-gray-50 rounded-lg">
-            <Activity className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-600 font-medium">No scenarios available</p>
-            <p className="text-gray-500 text-sm mt-1">Add transactions to your business to enable scenario analysis</p>
-          </div>
-        )}
 
-        {/* API Documentation */}
-        <Card>
-          <div>
-            <h3 className="font-semibold text-gray-900 mb-3">API Endpoints</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Use these endpoints to create custom scenario simulations programmatically:
-            </p>
-            <div className="bg-gray-50 p-4 rounded-lg space-y-2 font-mono text-xs overflow-x-auto">
-              <div className="text-gray-700"># Revenue Change</div>
-              <div className="text-blue-600">GET /api/v1/businesses/{'{'}id{'}'}/scenario/revenue?change_pct=-20</div>
-              
-              <div className="text-gray-700 mt-3"># Expense Change</div>
-              <div className="text-blue-600">GET /api/v1/businesses/{'{'}id{'}'}/scenario/expense?change_pct=15</div>
-              
-              <div className="text-gray-700 mt-3">// Combined Scenario</div>
-              <div className="text-blue-600">POST /api/v1/businesses/{'{'}id{'}'}/scenario/combined</div>
-              <div className="text-gray-600 ml-4">{'{'} "revenue_change_pct": -20, "expense_change_pct": 15 {'}'}</div>
+            <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl flex gap-3">
+              <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0" />
+              <p className="text-xs text-blue-200/80 leading-relaxed">
+                Changes in Sandbox mode are temporary and do not affect your actual transaction records. Commit only when you want to update your projections.
+              </p>
             </div>
+          </Card>
+
+          {/* Results Panel */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Income Delta */}
+              <Card className="border-l-4 border-l-brand">
+                <p className="text-xs text-surface-muted-foreground mb-1">Projected Income</p>
+                <div className="flex items-end gap-2">
+                  <p className="text-2xl font-bold text-surface-foreground">
+                    ₹{(projected.total_income || 0).toLocaleString()}
+                  </p>
+                  <p className={`text-sm mb-1 ${impact.income_delta >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {impact.income_delta >= 0 ? '↑' : '↓'} {Math.abs(params.income_change_pct)}%
+                  </p>
+                </div>
+                <p className="text-[10px] text-surface-muted-foreground mt-2 italic">
+                  Current: ₹{(current.total_income || 0).toLocaleString()}
+                </p>
+              </Card>
+
+              {/* Expense Delta */}
+              <Card className="border-l-4 border-l-red-500">
+                <p className="text-xs text-surface-muted-foreground mb-1">Projected Expenses</p>
+                <div className="flex items-end gap-2">
+                  <p className="text-2xl font-bold text-surface-foreground">
+                    ₹{(projected.total_expenses || 0).toLocaleString()}
+                  </p>
+                  <p className={`text-sm mb-1 ${impact.expense_delta <= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {params.expense_change_pct >= 0 ? '↑' : '↓'} {Math.abs(params.expense_change_pct)}%
+                  </p>
+                </div>
+                <p className="text-[10px] text-surface-muted-foreground mt-2 italic">
+                  Current: ₹{(current.total_expenses || 0).toLocaleString()}
+                </p>
+              </Card>
+            </div>
+
+            {/* Profit Analysis */}
+            <Card>
+              <h3 className="text-sm font-semibold text-surface-foreground mb-6 uppercase tracking-widest flex items-center gap-2">
+                <PieChart className="w-4 h-4 text-brand" />
+                Impact on Profitability
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="text-surface-muted-foreground">Profit Margin Impact</span>
+                      <span className={`${(projected.profit_margin - current.profit_margin) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {projected.profit_margin?.toFixed(1)}% ({(projected.profit_margin - current.profit_margin)?.toFixed(1)}%)
+                      </span>
+                    </div>
+                    <div className="w-full bg-surface-muted h-2 rounded-full overflow-hidden">
+                      <div 
+                        className="bg-brand h-full transition-all duration-500" 
+                        style={{ width: `${Math.min(100, Math.max(0, projected.profit_margin || 0))}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-surface-card rounded-xl border border-surface-border/50">
+                    <p className="text-xs text-surface-muted-foreground mb-2">Net Profit Change</p>
+                    <p className={`text-3xl font-bold ${(projected.net_profit - current.net_profit) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      ₹{(projected.net_profit || 0).toLocaleString()}
+                    </p>
+                    <p className="text-xs mt-1 text-surface-muted-foreground">
+                      Difference: ₹{(projected.net_profit - current.net_profit || 0).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-surface-muted/30 p-6 rounded-2xl border border-dashed border-surface-border">
+                  <h4 className="text-xs font-bold text-surface-foreground mb-4">Strategic Insight</h4>
+                  <ul className="space-y-3">
+                    <li className="flex gap-2 text-xs text-surface-muted-foreground">
+                      <div className="w-1 h-1 bg-brand rounded-full mt-1.5 flex-shrink-0"></div>
+                      {params.income_change_pct > 0 
+                        ? `A ${params.income_change_pct}% expansion in revenue scales net profit by ₹${(projected.net_profit - current.net_profit).toLocaleString()}.`
+                        : "Revenue contraction will significantly strain working capital."}
+                    </li>
+                    <li className="flex gap-2 text-xs text-surface-muted-foreground">
+                      <div className="w-1 h-1 bg-brand rounded-full mt-1.5 flex-shrink-0"></div>
+                      {params.expense_change_pct > 0
+                        ? `Overhead increase of ${params.expense_change_pct}% reduces margin by ${(current.profit_margin - projected.profit_margin).toFixed(1)}%.`
+                        : "Expense reduction optimization is improving operational efficiency."}
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </Card>
           </div>
-        </Card>
+        </div>
       </main>
+
+      {error && (
+        <div className="fixed bottom-6 right-6 bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-up">
+          <AlertCircle className="w-5 h-5" />
+          <p className="text-sm font-medium">{error}</p>
+        </div>
+      )}
     </div>
   );
 }

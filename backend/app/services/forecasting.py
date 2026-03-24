@@ -24,7 +24,11 @@ def forecast_next_n_months(transactions: list[Any], n: int = 6) -> list[Forecast
     exp_s = _monthly_series(transactions, "expense")
 
     def _predict(series: pd.Series, n_future: int):
-        if len(series) < 2:
+        if len(series) == 1:
+            # If only one month of data, project flat-line based on that month
+            val = float(series.iloc[0])
+            return [val] * n_future, [max(0, val * 0.8)] * n_future, [val * 1.2] * n_future
+        if len(series) < 1:
             return [0.0] * n_future, [0.0] * n_future, [0.0] * n_future
         X = np.arange(len(series)).reshape(-1, 1)
         y = series.values.astype(float)

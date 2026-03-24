@@ -1,63 +1,32 @@
-/**
- * useSimulation — handles scenario simulation for what-if analysis
- */
-import { useState, useCallback } from 'react';
-import { getScenarioRevenue, getScenarioExpense, getScenarioBatch } from '../services/forecastService';
+import { useState } from 'react';
+import api from '../services/api';
 
-export function useSimulation(businessId = '550e8400-e29b-41d4-a716-446655440001') {
-  const [scenarios, setScenarios] = useState([]);
+export const useSimulation = () => {
+  const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const simulateRevenueChange = useCallback(async (changePct) => {
+  const runSimulation = async (params) => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      const result = await getScenarioRevenue(businessId, changePct);
-      return result;
+      const { business_id, income_change_pct, expense_change_pct, mode } = params;
+      
+      const response = await api.post(`/api/v1/businesses/${business_id}/simulation/run`, {
+        income_change_pct,
+        expense_change_pct,
+        mode
+      });
+      
+      setResults(response.data);
+      return response.data;
     } catch (err) {
-      console.error('Simulation error:', err);
-      setError(err.message);
-      throw err;
+      setError(err.message || 'Simulation failed to run');
+      return null;
     } finally {
       setLoading(false);
     }
-  }, [businessId]);
-
-  const simulateExpenseChange = useCallback(async (changePct) => {
-    try {
-      setLoading(true);
-      const result = await getScenarioExpense(businessId, changePct);
-      return result;
-    } catch (err) {
-      console.error('Simulation error:', err);
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [businessId]);
-
-  const loadScenarioBatch = useCallback(async () => {
-    try {
-      setLoading(true);
-      const result = await getScenarioBatch(businessId);
-      setScenarios(result.scenarios || {});
-      return result;
-    } catch (err) {
-      console.error('Failed to load scenarios:', err);
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [businessId]);
-
-  return {
-    scenarios,
-    loading,
-    error,
-    simulateRevenueChange,
-    simulateExpenseChange,
-    loadScenarioBatch
   };
-}
+
+  return { runSimulation, results, loading, error };
+};

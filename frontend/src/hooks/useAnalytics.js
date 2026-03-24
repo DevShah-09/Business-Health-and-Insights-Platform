@@ -2,7 +2,7 @@
  * useAnalytics — fetches KPI + trend + category data from GET /analytics
  * Falls back to rich mock data when the API is unreachable.
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getAnalytics, getAlerts } from '../services/analyticsService';
 
 const BUSINESS_ID = '550e8400-e29b-41d4-a716-446655440001';
@@ -83,7 +83,7 @@ export function useAlerts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  const fetchAlerts = useCallback(() => {
     getAlerts(BUSINESS_ID)
       .then((res) => setAlerts(res.alerts || []))
       .catch((err) => {
@@ -92,6 +92,12 @@ export function useAlerts() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    fetchAlerts();
+    window.addEventListener('financial-data-refresh', fetchAlerts);
+    return () => window.removeEventListener('financial-data-refresh', fetchAlerts);
+  }, [fetchAlerts]);
 
   return { alerts, loading, error };
 }
