@@ -5,7 +5,6 @@ import { Card } from '../components/ui/Card';
 
 import { PnLChart } from '../components/charts/PnLChart';
 import { CashFlowChart } from '../components/charts/CashFlowChart';
-import { ExpensePieChart } from '../components/charts/ExpensePieChart';
 import { CategoryBarChart } from '../components/charts/CategoryBarChart';
 import { MetricCard } from '../components/dashboard/MetricCard';
 import { TopBar } from '../components/dashboard/TopBar';
@@ -46,7 +45,7 @@ export default function Financials() {
   return (
     <div className="flex flex-col h-full bg-[var(--color-surface)] overflow-y-auto">
       <TopBar />
-      
+
       {/* Page Header */}
       <div className="px-8 py-6 border-b border-surface-border/30 bg-surface-card/50">
         <h1 className="text-3xl font-bold text-surface-foreground mb-2">Analytics</h1>
@@ -87,21 +86,19 @@ export default function Financials() {
               <div className="flex gap-4 mb-6">
                 <button
                   onClick={() => setSelectedPeriod('monthly')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                    selectedPeriod === 'monthly'
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${selectedPeriod === 'monthly'
                       ? 'bg-brand text-surface-foreground'
                       : 'bg-surface-muted text-surface-muted-foreground hover:bg-surface-muted'
-                  }`}
+                    }`}
                 >
                   Monthly
                 </button>
                 <button
                   onClick={() => setSelectedPeriod('weekly')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                    selectedPeriod === 'weekly'
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${selectedPeriod === 'weekly'
                       ? 'bg-brand text-surface-foreground'
                       : 'bg-surface-muted text-surface-muted-foreground hover:bg-surface-muted'
-                  }`}
+                    }`}
                 >
                   Weekly
                 </button>
@@ -127,9 +124,8 @@ export default function Financials() {
               </div>
               <div className="bg-surface-card p-4 rounded-lg border border-brand/30">
                 <p className="text-xs text-surface-muted-foreground mb-1">Net Cash Flow</p>
-                <p className={`text-lg font-bold ${
-                  (cashFlow?.net_cash_flow || 0) > 0 ? 'text-green-400' : 'text-red-400'
-                }`}>
+                <p className={`text-lg font-bold ${(cashFlow?.net_cash_flow || 0) > 0 ? 'text-green-400' : 'text-red-400'
+                  }`}>
                   ₹{(cashFlow?.net_cash_flow || 0).toLocaleString()}
                 </p>
               </div>
@@ -143,25 +139,18 @@ export default function Financials() {
           </Card>
         </div>
 
-        {/* Cash Flow Trend, Expense Breakdown & Category Spending */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="lg:col-span-1">
-            <h3 className="text-sm font-semibold text-surface-foreground mb-4">Expense Distribution</h3>
-            {expenseBreakdown && <ExpensePieChart data={expenseBreakdown} />}
-          </Card>
-
-          <Card className="lg:col-span-2">
-            <h3 className="text-sm font-semibold text-surface-foreground mb-4">Category Spending</h3>
-            {expenseBreakdown && (
-              <CategoryBarChart 
-                data={expenseBreakdown.map(item => ({
-                  name: item.category,
-                  expenses: item.amount
-                }))} 
-              />
-            )}
-          </Card>
-        </div>
+        {/* Category Spending */}
+        <Card>
+          <h3 className="text-sm font-semibold text-surface-foreground mb-4">Category Spending</h3>
+          {expenseBreakdown && (
+            <CategoryBarChart
+              data={expenseBreakdown.map(item => ({
+                name: item.category,
+                expenses: item.amount
+              }))}
+            />
+          )}
+        </Card>
 
         <Card>
           <h3 className="text-sm font-semibold text-surface-foreground mb-4">Cash Flow Trend</h3>
@@ -175,17 +164,15 @@ export default function Financials() {
             <div className="space-y-4">
               <div className="bg-surface-card p-4 rounded-lg">
                 <p className="text-xs text-surface-muted-foreground mb-1">Daily Burn Rate</p>
-                <p className={`text-xl font-bold ${
-                  (burnRate?.daily_burn_rate || 0) < 0 ? 'text-red-400' : 'text-green-400'
-                }`}>
+                <p className={`text-xl font-bold ${(burnRate?.daily_burn_rate || 0) < 0 ? 'text-red-400' : 'text-green-400'
+                  }`}>
                   ₹{(burnRate?.daily_burn_rate || 0).toFixed(2)}
                 </p>
               </div>
               <div className="bg-surface-card p-4 rounded-lg">
                 <p className="text-xs text-surface-muted-foreground mb-1">Monthly Burn Rate</p>
-                <p className={`text-xl font-bold ${
-                  (burnRate?.monthly_burn_rate || 0) < 0 ? 'text-red-400' : 'text-green-400'
-                }`}>
+                <p className={`text-xl font-bold ${(burnRate?.monthly_burn_rate || 0) < 0 ? 'text-red-400' : 'text-green-400'
+                  }`}>
                   ₹{(burnRate?.monthly_burn_rate || 0).toFixed(2)}
                 </p>
               </div>

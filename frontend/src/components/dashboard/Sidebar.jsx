@@ -1,5 +1,6 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const NAV_ITEMS = [
   { to: '/',            label: 'Dashboard',    icon: 'dashboard' },
@@ -11,6 +12,14 @@ const NAV_ITEMS = [
 ];
 
 export function Sidebar() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
+
   return (
     <aside className="h-screen w-64 shrink-0 overflow-y-auto z-50 bg-surface flex flex-col p-4 gap-2 border-r border-surface-border/50 transition-colors">
       <div className="flex items-center gap-3 px-2 py-4 mb-6">
@@ -50,10 +59,13 @@ export function Sidebar() {
           <span className="material-symbols-outlined">help</span>
           <span className="font-sans text-sm">Help Center</span>
         </a>
-        <a className="flex items-center gap-3 px-4 py-3 text-surface-muted-foreground font-medium hover:bg-surface-border/50 hover:text-error rounded-lg transition-all duration-300 ease-in-out cursor-pointer">
-          <span className="material-symbols-outlined text-error">logout</span>
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 text-surface-muted-foreground font-medium hover:bg-surface-border/50 hover:text-red-500 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
+        >
+          <span className="material-symbols-outlined text-red-500">logout</span>
           <span className="font-sans text-sm">Logout</span>
-        </a>
+        </button>
       </div>
     </aside>
   );

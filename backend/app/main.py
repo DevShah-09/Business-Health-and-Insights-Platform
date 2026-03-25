@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from app.api import transactions, businesses, financials, health, forecast, ai_insights, analytics, alerts, chat, simulation, reports
+from app.api import transactions, businesses, financials, health, forecast, ai_insights, analytics, alerts, chat, simulation, reports, auth
 from app.database.database import init_db, AsyncSessionLocal
 from app.models.user import User
 from app.models.business import Business
@@ -117,6 +117,7 @@ app.include_router(alerts.router, prefix="/api/v1", tags=["alerts"])
 app.include_router(chat.router, prefix="/api/v1", tags=["chat"])
 app.include_router(simulation.router, prefix="/api/v1", tags=["simulation"])
 app.include_router(reports.router, prefix="/api/v1", tags=["reports"])
+app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
 
 
 @app.get("/api/v1/health")

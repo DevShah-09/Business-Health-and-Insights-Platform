@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 
 export function TopBar() {
   const [isDark, setIsDark] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains('dark'));
@@ -18,6 +20,15 @@ export function TopBar() {
     }
   };
 
+  // Derive display name & initials from auth context
+  const displayName = user?.name || 'User';
+  const initials = displayName
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
   return (
     <header className="bg-surface/80 backdrop-blur-xl sticky top-0 z-40 flex justify-end items-center px-8 py-4 w-full border-b border-surface-border/40 shadow-[0_4px_30px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.2)]">
       <div className="flex items-center gap-4">
@@ -32,11 +43,11 @@ export function TopBar() {
         </button>
         <div className="flex items-center gap-3 pl-4 border-l border-surface-border/50">
           <div className="text-right">
-            <p className="text-sm font-bold text-surface-foreground">Dev Shah</p>
+            <p className="text-sm font-bold text-surface-foreground">{displayName}</p>
             <p className="text-[10px] text-surface-muted-foreground uppercase font-bold">Admin</p>
           </div>
           <div className="w-10 h-10 rounded-full bg-brand flex items-center justify-center text-white font-bold text-sm shadow-sm">
-            DS
+            {initials}
           </div>
         </div>
       </div>
