@@ -8,7 +8,7 @@ import api from './api';
  * @returns {{ access_token: string, token_type: string }}
  */
 export async function registerUser(email, fullName, password) {
-  const { data } = await api.post('/auth/register', {
+  const { data } = await api.post('/api/v1/auth/register', {
     email,
     full_name: fullName,
     password,
@@ -26,8 +26,9 @@ export async function loginUser(email, password) {
   params.append('username', email);
   params.append('password', password);
 
-  const { data } = await api.post('/auth/login', params, {
+  const { data } = await api.post('/api/v1/auth/login', params, {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   });
   return data;
 }
+

@@ -1,5 +1,5 @@
 # app/api/__init__.py
-from . import transactions, businesses, financials, health, forecast, ai_insights, analytics, alerts, chat, simulation, reports
+from . import transactions, businesses, financials, health, forecast, ai_insights, analytics, alerts, chat, simulation, reports, auth
 
 __all__ = [
     "transactions",
@@ -12,5 +12,6 @@ __all__ = [
     "alerts",
     "chat",
     "simulation",
-    "reports"
+    "reports",
+    "auth",
 ]
