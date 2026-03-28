@@ -10,6 +10,7 @@ from app.database.database import engine, AsyncSessionLocal, Base
 from app.models.business import Business
 from app.models.user import User
 from app.models.transaction import Transaction, TransactionType
+from app.config.settings import settings
 from datetime import datetime, date, timedelta
 from decimal import Decimal
 
@@ -21,8 +22,13 @@ DEFAULT_BUSINESS_ID = uuid.UUID('550e8400-e29b-41d4-a716-446655440001')
 async def init_db():
     """Create all tables and seed with default data."""
     async with engine.begin() as conn:
+        from app.models.business import Business
+        from app.models.user import User
+        from app.models.transaction import Transaction
+        from app.models.report import Report # Import Report to avoid mapper initialization error
+        # await conn.run_sync(Base.metadata.drop_all) # Reset schema if needed
         await conn.run_sync(Base.metadata.create_all)
-        print("✓ Database tables created")
+        print("OK: Database tables created")
 
     async with AsyncSessionLocal() as session:
         # Check if default user already exists
@@ -38,10 +44,12 @@ async def init_db():
                 id=DEFAULT_USER_ID,
                 email="admin@sme-platform.local",
                 username="admin",
+                full_name="Administrator",
                 hashed_password="$2b$12$hashed_password_placeholder",  # Placeholder
             )
             session.add(user)
-            print("✓ Default user created")
+            await session.flush() # Ensure user is in DB for foreign key constraints
+            print("OK: Default user created")
 
         # Check if default business already exists
         result = await session.execute(
@@ -60,7 +68,7 @@ async def init_db():
                 currency="USD",
             )
             session.add(business)
-            print("✓ Default business created")
+            print("OK: Default business created")
 
         await session.commit()
 
@@ -105,12 +113,13 @@ async def init_db():
             for tx in sample_txs:
                 session.add(tx)
             await session.commit()
-            print(f"✓ {len(sample_txs)} sample transactions created")
+            print(f"OK: {len(sample_txs)} sample transactions created")
 
-        print(f"\n✓ Database initialized successfully!")
+        print(f"\nOK: Database initialized successfully!")
         print(f"  - Default User ID: {DEFAULT_USER_ID}")
         print(f"  - Default Business ID: {DEFAULT_BUSINESS_ID}")
-        print(f"  - Database: test.db (SQLite)")
+        db_type = "PostgreSQL (Supabase)" if not settings.DATABASE_URL.startswith("sqlite") else "test.db (SQLite)"
+        print(f"  - Database: {db_type}")
 
 
 if __name__ == "__main__":

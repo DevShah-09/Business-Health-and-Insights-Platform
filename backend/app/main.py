@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from app.api import transactions, businesses, financials, health, forecast, ai_insights, analytics, alerts, chat, simulation, reports
+from app.api import auth, transactions, businesses, financials, health, forecast, ai_insights, analytics, alerts, chat, simulation, reports
 from app.database.database import init_db, AsyncSessionLocal
 from app.models.user import User
 from app.models.business import Business
@@ -32,6 +32,7 @@ async def lifespan(app: FastAPI):
             user = User(
                 id=mock_user_id,
                 email="demo@example.com",
+                username="demo",
                 full_name="Demo User",
                 hashed_password="fake"
             )
@@ -107,6 +108,7 @@ app.add_middleware(
 )
 
 # Register API routers
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(transactions.router, prefix="/api/v1", tags=["transactions"])
 app.include_router(businesses.router, prefix="/api/v1", tags=["businesses"])
 app.include_router(financials.router, prefix="/api/v1", tags=["financials"])

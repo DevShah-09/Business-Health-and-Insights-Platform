@@ -30,6 +30,7 @@ export default function Transactions() {
   const [formData, setFormData] = useState({
     type: 'income',
     category: 'salary',
+    description: '',
     amount: '',
     date: new Date().toISOString().split('T')[0],
     status: 'completed'
@@ -67,7 +68,7 @@ export default function Transactions() {
 
   const handleAddPending = async (e) => {
     e.preventDefault();
-    if (!pendingFormData.description || !pendingFormData.amount) return;
+    if (!pendingFormData.amount) return;
 
     await addTransaction({
       ...pendingFormData,
@@ -79,7 +80,7 @@ export default function Transactions() {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-    if (!formData.description || !formData.amount) return;
+    if (!formData.amount) return;
     if (editingId) {
       await editTransaction(editingId, {
         ...formData,

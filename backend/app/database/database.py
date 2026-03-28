@@ -8,11 +8,26 @@ from app.config.settings import settings
 
 # ✅ Make sure settings.DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=settings.DEBUG,
-    connect_args={"check_same_thread": False},  # ✅ Required for SQLite
-)
+# engine = create_async_engine(
+#     settings.DATABASE_URL,
+#     echo=settings.DEBUG,
+# )
+
+# Handle SQLite specifically for development
+is_sqlite = settings.DATABASE_URL.startswith("sqlite")
+engine_kwargs = {"echo": settings.DEBUG}
+
+if is_sqlite:
+    engine_kwargs["connect_args"] = {"check_same_thread": False}
+else:
+    # ✅ Required for Supabase/PgBouncer (Transaction Mode)
+    # Disables prepared statements which are not supported by PgBouncer
+    engine_kwargs["connect_args"] = {
+        "statement_cache_size": 0,
+        "prepared_statement_cache_size": 0,
+    }
+
+engine = create_async_engine(settings.DATABASE_URL, **engine_kwargs)
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
